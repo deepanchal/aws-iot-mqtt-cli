@@ -109,7 +109,7 @@ dependencies = [
 
 [[package]]
 name = "aws-iot-mqtt-cli"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "aws-iot-device-sdk-rust",
  "chrono",
