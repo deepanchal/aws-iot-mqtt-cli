@@ -3,6 +3,8 @@ use aws_iot_device_sdk_rust::{
 };
 use clap::{Parser, Subcommand};
 use colored::*;
+use env_logger;
+use log::debug;
 use regex::Regex;
 use serde_json::Value;
 use std::error::Error;
@@ -35,17 +37,41 @@ struct Args {
     #[command(subcommand)]
     command: Option<CliCommand>,
 
+    /// AWS IoT endpoint URL
+    #[arg(long, env = "AWS_IOT_ENDPOINT")]
+    endpoint: String,
+
+    /// Client ID for MQTT connection
+    #[arg(long, env = "AWS_IOT_CLIENT_ID")]
+    client_id: String,
+
     /// Path to the root CA certificate
-    #[arg(long, default_value = "./certs/AmazonRootCA1.pem")]
+    #[arg(
+        long,
+        env = "AWS_IOT_ROOT_CA_PATH",
+        default_value = "./certs/AmazonRootCA1.pem"
+    )]
     root_ca: PathBuf,
 
     /// Path to the device certificate
-    #[arg(long, default_value = "./certs/cert.crt")]
+    #[arg(
+        long,
+        env = "AWS_IOT_DEVICE_CERT_PATH",
+        default_value = "./certs/cert.crt"
+    )]
     device_cert: PathBuf,
 
     /// Path to the device private key
-    #[arg(long, default_value = "./certs/key.pem")]
+    #[arg(
+        long,
+        env = "AWS_IOT_PRIVATE_KEY_PATH",
+        default_value = "./certs/key.pem"
+    )]
     private_key: PathBuf,
+
+    /// Enable verbose logging
+    #[arg(short, long)]
+    verbose: bool,
 }
 
 /// Subcommands for the CLI
@@ -82,24 +108,29 @@ enum CliCommand {
 async fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
-    let endpoint = std::env::var("AWS_IOT_ENDPOINT").expect("AWS_IOT_ENDPOINT not set");
-    let client_id = std::env::var("AWS_IOT_CLIENT_ID").expect("AWS_IOT_CLIENT_ID not set");
-    let root_ca_path = args.root_ca.to_str().unwrap().to_string();
-    let device_cert_path = args.device_cert.to_str().unwrap().to_string();
-    let private_key_path = args.private_key.to_str().unwrap().to_string();
-    println!(
-        "{}",
-        format!("Connecting with client_id: {}", client_id).blue()
-    );
+    if args.verbose {
+        env_logger::Builder::new()
+            .filter_level(log::LevelFilter::Debug)
+            .init();
+    } else {
+        env_logger::Builder::new()
+            .filter_level(log::LevelFilter::Info)
+            .init();
+    }
+
+    debug!("Parsed CLI arguments: {:?}", args);
 
     let aws_settings = AWSIoTSettings::new(
-        client_id,
-        root_ca_path,
-        device_cert_path,
-        private_key_path,
-        endpoint,
+        args.client_id.clone(),
+        args.root_ca.to_str().unwrap().to_string(),
+        args.device_cert.to_str().unwrap().to_string(),
+        args.private_key.to_str().unwrap().to_string(),
+        args.endpoint.clone(),
         None,
     );
+
+    debug!("Connecting with client_id: {}", args.client_id.blue());
+    debug!("Using endpoint: {}", args.endpoint);
 
     let (iot_core_client, event_loop) = AWSIoTAsyncClient::new(aws_settings).await?;
     let iot_core_client = Arc::new(Mutex::new(iot_core_client));
