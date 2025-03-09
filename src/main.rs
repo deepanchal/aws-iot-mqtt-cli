@@ -3,7 +3,6 @@ use aws_iot_device_sdk_rust::{
 };
 use clap::{Parser, Subcommand};
 use colored::*;
-use env_logger;
 use log::debug;
 use regex::Regex;
 use serde_json::Value;
@@ -172,29 +171,26 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             let recv_thread = task::spawn(async move {
                 loop {
-                    match receiver.lock().await.recv().await {
-                        Ok(Packet::Publish(p)) => {
-                            let topic = p.topic;
-                            let payload = match String::from_utf8(p.payload.to_vec()) {
-                                Ok(s) => s,
-                                Err(e) => {
-                                    eprintln!("Invalid UTF-8 payload: {}", e);
-                                    continue;
-                                }
-                            };
-                            if let Some(ref regex) = include_regex {
-                                if !regex.is_match(&topic) {
-                                    continue;
-                                }
+                    if let Ok(Packet::Publish(p)) = receiver.lock().await.recv().await {
+                        let topic = p.topic;
+                        let payload = match String::from_utf8(p.payload.to_vec()) {
+                            Ok(s) => s,
+                            Err(e) => {
+                                eprintln!("Invalid UTF-8 payload: {}", e);
+                                continue;
                             }
-                            if let Some(ref regex) = exclude_regex {
-                                if regex.is_match(&topic) {
-                                    continue;
-                                }
+                        };
+                        if let Some(ref regex) = include_regex {
+                            if !regex.is_match(&topic) {
+                                continue;
                             }
-                            format_mqtt_log_entry(&topic, &payload);
                         }
-                        _ => (),
+                        if let Some(ref regex) = exclude_regex {
+                            if regex.is_match(&topic) {
+                                continue;
+                            }
+                        }
+                        format_mqtt_log_entry(&topic, &payload);
                     }
                 }
             });
@@ -217,7 +213,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let receiver = iot_core_client.lock().await.get_receiver().await;
             let receiver = Arc::new(Mutex::new(receiver));
             let drain_task = task::spawn(async move {
-                loop {
+                while (receiver.lock().await.recv().await).is_ok() {
                     match receiver.lock().await.recv().await {
                         Ok(_) => {}      // Ignore incoming events
                         Err(_) => break, // Exit if the channel is closed
