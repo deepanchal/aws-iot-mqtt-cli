@@ -9,7 +9,6 @@ use regex::Regex;
 use serde_json::Value;
 use std::error::Error;
 use std::hash::{Hash, Hasher};
-use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::task;
@@ -54,7 +53,7 @@ struct Args {
         env = "AWS_IOT_ROOT_CA_PATH",
         default_value = "./certs/AmazonRootCA1.pem"
     )]
-    root_ca: PathBuf,
+    root_ca_path: String,
 
     /// Path to the device certificate
     #[arg(
@@ -62,15 +61,15 @@ struct Args {
         env = "AWS_IOT_DEVICE_CERT_PATH",
         default_value = "./certs/cert.crt"
     )]
-    device_cert: PathBuf,
+    device_cert_path: String,
 
     /// Path to the device private key
     #[arg(
         long,
-        env = "AWS_IOT_PRIVATE_KEY_PATH",
+        env = "AWS_IOT_DEVICE_PRIVATE_KEY_PATH",
         default_value = "./certs/key.pem"
     )]
-    private_key: PathBuf,
+    device_private_key_path: String,
 
     /// Enable verbose logging
     #[arg(short, long)]
@@ -107,12 +106,8 @@ enum CliCommand {
     },
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    let args = Args::parse();
-    let mut cmd = Args::command();
-
-    if args.verbose {
+fn setup_logging(verbose: bool) {
+    if verbose {
         env_logger::Builder::new()
             .filter_level(log::LevelFilter::Debug)
             .init();
@@ -121,11 +116,24 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .filter_level(log::LevelFilter::Info)
             .init();
     }
+}
 
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let args = Args::parse();
+    let mut cmd = Args::command();
+
+    setup_logging(args.verbose);
     debug!("Parsed CLI arguments: {:?}", args);
 
+    let endpoint = args.endpoint;
+    let port = args.port;
+    let client_id = args.client_id;
+    let root_ca_path = args.root_ca_path;
+    let device_cert_path = args.device_cert_path;
+    let device_private_key_path = args.device_private_key_path;
     let mqtt_option_overrides = MQTTOptionsOverrides {
-        port: Some(args.port),
+        port: Some(port),
         clean_session: Some(true),
         keep_alive: None,
         max_packet_size: None,
@@ -137,16 +145,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
         transport: None,
     };
     let aws_settings = AWSIoTSettings::new(
-        args.client_id.clone(),
-        args.root_ca.to_str().unwrap().to_string(),
-        args.device_cert.to_str().unwrap().to_string(),
-        args.private_key.to_str().unwrap().to_string(),
-        args.endpoint.clone(),
+        client_id.clone(),
+        root_ca_path.clone(),
+        device_cert_path.clone(),
+        device_private_key_path.clone(),
+        endpoint.clone(),
         Some(mqtt_option_overrides),
     );
 
-    debug!("Connecting with client_id: {}", args.client_id.blue());
-    debug!("Using endpoint: {}", args.endpoint);
+    debug!(
+        "Connecting to {} with client_id: {}",
+        endpoint.clone().blue(),
+        client_id.clone().blue(),
+    );
 
     let (iot_core_client, (event_loop, sender)) = AWSIoTAsyncClient::new(aws_settings).await?;
     let raw_client = iot_core_client.get_client().await;
