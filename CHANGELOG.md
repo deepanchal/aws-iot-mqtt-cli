@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.2.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.1.0...v0.2.0) (2025-03-10)
+
+
+### Features
+
+* **app:** add mqtt port flag, use rumqttc client directly for sub/pub, enable clean session ([d4351b1](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/d4351b175e7509b252332dfa782f9b6c5f6bdb3b))
+* **app:** handle graceful shutdown w/ ctrl+c, unsubscribe from mqtt topics on shutdown ([bd1a01e](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/bd1a01e519aed3662af9b9d1eca49b4dc51a90cd))
+
+
+### Bug Fixes
+
+* **app:** print long help if no subcommands are provided by user ([d1d22e0](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/d1d22e0b7f230e875d1fcb690d704627873fee6e))
+* **app:** update cli path flags, add setup_logging, refactor code ([1074087](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/10740873ddef2bf22e351cf0c0c6cc1c4fa7b7b8))
+* **deps:** update rust crate env_logger to v0.11.7 ([5108021](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/51080214daf5cc497ca0811ae6265c5c5886f4f1))
+
+
+### Code Refactoring
+
+* **app:** refactor mqtt log formatting into format.rs module, update code usages ([b4ea7dc](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/b4ea7dcbecc9dd6b4a889d5770a1ec3ea79649e0))
+
 ## 0.1.0 (2025-03-09)
 
 
