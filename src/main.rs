@@ -1,3 +1,4 @@
+use aws_iot_device_sdk_rust::settings::MQTTOptionsOverrides;
 use aws_iot_device_sdk_rust::{
     async_event_loop_listener, AWSIoTAsyncClient, AWSIoTSettings, Packet, QoS,
 };
@@ -38,6 +39,10 @@ struct Args {
     /// AWS IoT endpoint URL
     #[arg(long, env = "AWS_IOT_ENDPOINT")]
     endpoint: String,
+
+    /// AWS IoT endpoint URL
+    #[arg(long, env = "AWS_IOT_PORT", default_value = "8883")]
+    port: u16,
 
     /// Client ID for MQTT connection
     #[arg(long, env = "AWS_IOT_CLIENT_ID")]
@@ -119,20 +124,33 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     debug!("Parsed CLI arguments: {:?}", args);
 
+    let mqtt_option_overrides = MQTTOptionsOverrides {
+        port: Some(args.port),
+        clean_session: Some(true),
+        keep_alive: None,
+        max_packet_size: None,
+        request_channel_capacity: None,
+        pending_throttle: None,
+        inflight: None,
+        last_will: None,
+        conn_timeout: None,
+        transport: None,
+    };
     let aws_settings = AWSIoTSettings::new(
         args.client_id.clone(),
         args.root_ca.to_str().unwrap().to_string(),
         args.device_cert.to_str().unwrap().to_string(),
         args.private_key.to_str().unwrap().to_string(),
         args.endpoint.clone(),
-        None,
+        Some(mqtt_option_overrides),
     );
 
     debug!("Connecting with client_id: {}", args.client_id.blue());
     debug!("Using endpoint: {}", args.endpoint);
 
-    let (iot_core_client, event_loop) = AWSIoTAsyncClient::new(aws_settings).await?;
-    let iot_core_client = Arc::new(Mutex::new(iot_core_client));
+    let (iot_core_client, (event_loop, sender)) = AWSIoTAsyncClient::new(aws_settings).await?;
+    let raw_client = iot_core_client.get_client().await;
+    let client = Arc::new(Mutex::new(raw_client));
 
     match args.command {
         Some(CliCommand::Sub {
@@ -157,7 +175,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let exclude_regex = exclude.map(|s| Regex::new(&s).unwrap());
 
             for topic in topic_list {
-                iot_core_client
+                client
                     .lock()
                     .await
                     .subscribe(topic.to_string(), QoS::AtMostOnce)
@@ -166,7 +184,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }
 
             // For subscriptions, keep listening to messages
-            let receiver = iot_core_client.lock().await.get_receiver().await;
+            let receiver = sender.subscribe();
             let receiver = Arc::new(Mutex::new(receiver));
 
             let recv_thread = task::spawn(async move {
@@ -196,7 +214,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
             });
 
             let listen_thread = task::spawn(async move {
-                async_event_loop_listener(event_loop).await.unwrap();
+                async_event_loop_listener((event_loop, sender))
+                    .await
+                    .unwrap();
             });
 
             let (recv_result, listen_result) = tokio::join!(recv_thread, listen_thread);
@@ -210,7 +230,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let topic_list: Vec<&str> = topics.split(',').collect();
 
             // Create a receiver to drain incoming events
-            let receiver = iot_core_client.lock().await.get_receiver().await;
+            let receiver = sender.subscribe();
             let receiver = Arc::new(Mutex::new(receiver));
             let drain_task = task::spawn(async move {
                 while (receiver.lock().await.recv().await).is_ok() {
@@ -222,10 +242,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             });
 
             for topic in topic_list {
-                iot_core_client
+                client
                     .lock()
                     .await
-                    .publish(topic.to_string(), QoS::AtMostOnce, message.to_string())
+                    .publish(topic, QoS::AtMostOnce, false, message.clone())
                     .await?;
                 println!("{}", format!("Published to topic: {}", topic).blue());
                 match serde_json::from_str::<Value>(&message) {
@@ -236,7 +256,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             // Run the event loop briefly to ensure the message is sent
             let event_loop_task = task::spawn(async move {
-                async_event_loop_listener(event_loop).await.unwrap();
+                async_event_loop_listener((event_loop, sender))
+                    .await
+                    .unwrap();
             });
 
             // Allow time for the event loop to process the message

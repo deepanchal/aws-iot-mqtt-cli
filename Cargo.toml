@@ -12,6 +12,7 @@ license = "MIT"
 
 [dependencies]
 aws-iot-device-sdk-rust = "0.6.0"
+rumqttc = "0.24.0"
 chrono = "0.4.40"
 clap = { version = "4.5.31", features = ["derive", "env"] }
 colored = "3.0.0"
