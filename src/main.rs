@@ -10,6 +10,7 @@ use serde_json::Value;
 use std::error::Error;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
+use tokio::signal;
 use tokio::sync::Mutex;
 use tokio::task;
 use tokio::time::{sleep, Duration};
@@ -163,6 +164,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let raw_client = iot_core_client.get_client().await;
     let client = Arc::new(Mutex::new(raw_client));
 
+    let shutdown_signal = async {
+        signal::ctrl_c().await.expect("Failed to listen for Ctrl+C");
+        debug!("Received shutdown signal, cleaning up...");
+    };
+
     match args.command {
         Some(CliCommand::Sub {
             topics,
@@ -185,7 +191,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let include_regex = include.map(|s| Regex::new(&s).unwrap());
             let exclude_regex = exclude.map(|s| Regex::new(&s).unwrap());
 
-            for topic in topic_list {
+            for topic in topic_list.clone() {
                 client
                     .lock()
                     .await
@@ -230,11 +236,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .unwrap();
             });
 
-            let (recv_result, listen_result) = tokio::join!(recv_thread, listen_thread);
-
-            // Propagate errors if any
-            recv_result?;
-            listen_result?;
+            // Wait for either the threads to complete or the shutdown signal
+            tokio::select! {
+                _ = recv_thread => {}
+                _ = listen_thread => {}
+                _ = shutdown_signal => {
+                    for topic in topic_list.clone() {
+                        client.lock().await.unsubscribe(topic).await?;
+                        println!("{}", format!("Unsubscribed from topic: {}", topic).blue());
+                    }
+                }
+            }
         }
 
         Some(CliCommand::Pub { topics, message }) => {
