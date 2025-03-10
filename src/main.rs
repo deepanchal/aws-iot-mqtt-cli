@@ -1,3 +1,6 @@
+mod format;
+
+use crate::format::format_mqtt_log_entry;
 use aws_iot_device_sdk_rust::settings::MQTTOptionsOverrides;
 use aws_iot_device_sdk_rust::{
     async_event_loop_listener, AWSIoTAsyncClient, AWSIoTSettings, Packet, QoS,
@@ -8,7 +11,6 @@ use log::debug;
 use regex::Regex;
 use serde_json::Value;
 use std::error::Error;
-use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 use tokio::signal;
 use tokio::sync::Mutex;
@@ -24,7 +26,7 @@ use tokio::time::{sleep, Duration};
 MQTT CLI for AWS IoT
 
 This tool allows you to subscribe to or publish messages to AWS IoT topics.
-You can filter messages using regex patterns for inclusion or exclusion.
+You can filter messages from topics using regex patterns for inclusion or exclusion.
 
 Examples:
   aws-iot-mqtt-cli sub --topics test/1234/health,test/2345/data
@@ -225,7 +227,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 continue;
                             }
                         }
-                        format_mqtt_log_entry(&topic, &payload);
+                        let formatted_output = format_mqtt_log_entry(&topic, &payload);
+                        println!("{}", formatted_output);
                     }
                 }
             });
@@ -294,88 +297,4 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
 
     Ok(())
-}
-
-fn format_mqtt_log_entry(topic: &str, payload: &str) {
-    let color = derive_color_from_string(topic);
-    let timestamp = chrono::Utc::now().to_rfc3339();
-    let pretty_output = match serde_json::from_str::<Value>(payload) {
-        Ok(value) => serde_json::to_string_pretty(&value).unwrap_or_else(|_| payload.to_string()),
-        Err(_) => payload.to_string(),
-    };
-
-    let terminal_width = term_size::dimensions()
-        .map(|(width, _)| width)
-        .unwrap_or(96);
-
-    let timestamp_width = timestamp.len();
-    let max_topic_width = terminal_width.saturating_sub(timestamp_width + 1);
-
-    let truncated_topic = if topic.len() > max_topic_width {
-        format!("{}…", &topic[..max_topic_width.saturating_sub(1)])
-    } else {
-        topic.to_string()
-    };
-
-    let header_text = if topic.len() <= max_topic_width {
-        let spacer_width = terminal_width.saturating_sub(truncated_topic.len() + timestamp_width);
-        let spacer = " ".repeat(spacer_width);
-        format!("{}{}{}", truncated_topic, spacer, timestamp)
-    } else if topic.len() <= terminal_width {
-        truncated_topic
-    } else {
-        format!("{}…", &topic[..terminal_width.saturating_sub(1)])
-    };
-
-    let divider = "─".repeat(header_text.len());
-    let styled_divider = divider.color(color).bold();
-    let styled_header = header_text.color(color).bold();
-    let styled_json = pretty_output.bright_white();
-
-    print_log_section(&styled_divider, &styled_header);
-    println!("{}", styled_json);
-    print_log_section(&styled_divider, &styled_header);
-    println!();
-}
-
-/// Helper function to print header/footer sections
-fn print_log_section(divider: &ColoredString, header: &ColoredString) {
-    println!("{}", divider);
-    println!("{}", header);
-    println!("{}", divider);
-}
-
-fn derive_color_from_string(topic: &str) -> Color {
-    let mut hasher = std::collections::hash_map::DefaultHasher::new();
-    topic.hash(&mut hasher);
-    let hash = hasher.finish();
-
-    // Generate vibrant colors using golden ratio distribution
-    let hue = (hash as f64) * 0.618033988749895 % 360.0;
-    let saturation = 75.0 + ((hash >> 8) % 25) as f64; // 75-100%
-    let lightness = 45.0 + ((hash >> 16) % 15) as f64; // 45-60%
-
-    let (r, g, b) = hsl_to_rgb(hue, saturation / 100.0, lightness / 100.0);
-    Color::TrueColor { r, g, b }
-}
-
-fn hsl_to_rgb(h: f64, s: f64, l: f64) -> (u8, u8, u8) {
-    let c = (1.0 - (2.0 * l - 1.0).abs()) * s;
-    let x = c * (1.0 - ((h / 60.0) % 2.0 - 1.0).abs());
-    let m = l - c / 2.0;
-
-    let (r, g, b) = match h {
-        h if h < 60.0 => (c, x, 0.0),
-        h if h < 120.0 => (x, c, 0.0),
-        h if h < 180.0 => (0.0, c, x),
-        h if h < 240.0 => (0.0, x, c),
-        h if h < 300.0 => (x, 0.0, c),
-        _ => (c, 0.0, x),
-    };
-
-    (
-        ((r + m) * 255.0).round() as u8,
-        ((g + m) * 255.0).round() as u8,
-        ((b + m) * 255.0).round() as u8,
-    )
 }
