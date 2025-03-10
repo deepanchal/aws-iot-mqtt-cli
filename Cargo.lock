@@ -118,6 +118,7 @@ dependencies = [
  "env_logger",
  "log",
  "regex",
+ "rumqttc",
  "serde_json",
  "term_size",
  "tokio",
