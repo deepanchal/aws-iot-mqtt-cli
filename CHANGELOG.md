@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.2.0...v0.2.1) (2025-03-15)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate clap to v4.5.32 ([1defde7](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/1defde70a1bcda313bd4cb4e0da497cc72ab47bf))
+* **deps:** update rust crate tokio to v1.44.1 ([31c1eda](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/31c1edac60aa03c57ddf89a6b65291728847defe))
+
 ## [0.2.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.1.0...v0.2.0) (2025-03-10)
 
 
