@@ -1,5 +1,7 @@
 use colored::*;
-use serde_json::Value;
+use json_pretty_compact::PrettyCompactFormatter;
+use serde_json::{Serializer, Value};
+use serde::ser::Serialize;
 use std::hash::{Hash, Hasher};
 
 pub fn format_mqtt_log_entry(topic: &str, payload: &str) -> String {
@@ -22,7 +24,15 @@ pub fn format_mqtt_log_entry(topic: &str, payload: &str) -> String {
 
 fn format_payload(payload: &str) -> String {
     match serde_json::from_str::<Value>(payload) {
-        Ok(value) => serde_json::to_string_pretty(&value).unwrap_or_else(|_| payload.to_string()),
+        Ok(value) => {
+            let mut buffer = Vec::new();
+            let formatter = PrettyCompactFormatter::new();
+            let mut ser = Serializer::with_formatter(&mut buffer, formatter);
+            match value.serialize(&mut ser) {
+                Ok(_) => String::from_utf8_lossy(&buffer).into_owned(),
+                Err(_) => payload.to_string(),
+            }
+        }
         Err(_) => payload.to_string(),
     }
 }
