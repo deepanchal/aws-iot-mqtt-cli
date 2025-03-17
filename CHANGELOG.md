@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.2.0...v0.3.0) (2025-03-17)
+
+
+### Features
+
+* **app:** upgrade project edition to 2024 following docs, format code ([9e9b574](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/9e9b5743b8a2773280e8245ebbed6bc1a843bca4))
+* **app:** use pretty compact formatter to format json payloads ([d13e814](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/d13e814a0010df6df7f66852c35241951f81ee50))
+
+
+### Bug Fixes
+
+* **deps:** update rust crate clap to v4.5.32 ([1defde7](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/1defde70a1bcda313bd4cb4e0da497cc72ab47bf))
+* **deps:** update rust crate tokio to v1.44.1 ([31c1eda](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/31c1edac60aa03c57ddf89a6b65291728847defe))
+* **pkg:** format + sort deps in Cargo.toml ([856cfcc](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/856cfcc0c971296876f86864adb9579f85b278eb))
+* **pkg:** update deps with cargo update ([adddc0e](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/adddc0e859d8d19ce1d113dcb4f548ef5910c1ef))
+
 ## [0.2.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.1.0...v0.2.0) (2025-03-10)
 
 
