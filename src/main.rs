@@ -3,7 +3,7 @@ mod format;
 use crate::format::format_mqtt_log_entry;
 use aws_iot_device_sdk_rust::settings::MQTTOptionsOverrides;
 use aws_iot_device_sdk_rust::{
-    async_event_loop_listener, AWSIoTAsyncClient, AWSIoTSettings, Packet, QoS,
+    AWSIoTAsyncClient, AWSIoTSettings, Packet, QoS, async_event_loop_listener,
 };
 use clap::{CommandFactory, Parser, Subcommand};
 use colored::*;
@@ -15,7 +15,7 @@ use std::sync::Arc;
 use tokio::signal;
 use tokio::sync::Mutex;
 use tokio::task;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 
 /// MQTT CLI for AWS IoT
 #[derive(Parser, Debug)]
