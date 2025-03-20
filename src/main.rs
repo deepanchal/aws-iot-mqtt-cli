@@ -1,7 +1,7 @@
 mod format;
 
 use crate::format::format_mqtt_log_entry;
-use aws_iot_device_sdk_rust::settings::MQTTOptionsOverrides;
+use aws_iot_device_sdk_rust::settings::{MQTTMaxPacketSize, MQTTOptionsOverrides};
 use aws_iot_device_sdk_rust::{
     AWSIoTAsyncClient, AWSIoTSettings, Packet, QoS, async_event_loop_listener,
 };
@@ -139,7 +139,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         port: Some(port),
         clean_session: Some(true),
         keep_alive: None,
-        max_packet_size: None,
+        max_packet_size: Some(MQTTMaxPacketSize::new(24 * 1024, 24 * 1024)),
         request_channel_capacity: None,
         pending_throttle: None,
         inflight: None,
