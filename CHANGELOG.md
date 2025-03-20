@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.3.0...v0.3.1) (2025-03-20)
+
+
+### Bug Fixes
+
+* **app:** increase mqtt max_packet_size option ([2b905ca](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/2b905ca09108c4dde2f1aada0e8896fade649433))
+
 ## [0.3.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.2.0...v0.3.0) (2025-03-17)
 
 
