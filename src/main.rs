@@ -5,6 +5,8 @@ use aws_iot_device_sdk_rust::settings::{MQTTMaxPacketSize, MQTTOptionsOverrides}
 use aws_iot_device_sdk_rust::{
     AWSIoTAsyncClient, AWSIoTSettings, Packet, QoS, async_event_loop_listener,
 };
+use clap::builder::Styles;
+use clap::builder::styling::{AnsiColor, Effects};
 use clap::{CommandFactory, Parser, Subcommand};
 use colored::*;
 use log::debug;
@@ -17,11 +19,19 @@ use tokio::sync::Mutex;
 use tokio::task;
 use tokio::time::{Duration, sleep};
 
+// Configures Clap v3-style help menu colors
+const STYLES: Styles = Styles::styled()
+    .header(AnsiColor::Green.on_default().effects(Effects::BOLD))
+    .usage(AnsiColor::Green.on_default().effects(Effects::BOLD))
+    .literal(AnsiColor::Cyan.on_default().effects(Effects::BOLD))
+    .placeholder(AnsiColor::Cyan.on_default());
+
 /// MQTT CLI for AWS IoT
 #[derive(Parser, Debug)]
 #[command(
     version,
     about,
+    styles=STYLES,
     long_about = r#"
 MQTT CLI for AWS IoT
 
