@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.4.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.3.0...v0.4.0) (2025-06-19)
+
+
+### Features
+
+* **app:** add colors for clap cli ([16dff27](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/16dff274d705a84b8747830e95d67f6cabdcf568))
+
+
+### Bug Fixes
+
+* **app:** increase mqtt max_packet_size option ([2b905ca](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/2b905ca09108c4dde2f1aada0e8896fade649433))
+* **deps:** update rust crate chrono to v0.4.41 ([f5dbb45](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/f5dbb450448237758154fc84e87a7042beaf50cc))
+* **deps:** update rust crate clap to v4.5.34 ([424cd12](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/424cd123ea81dcccb2b3b53d50bcd689f85ac225))
+* **deps:** update rust crate clap to v4.5.40 ([7fc14b3](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/7fc14b306c8ee300dea5b0219a7f84b09d6d8e4b))
+* **deps:** update rust crate env_logger to v0.11.8 ([9865ab9](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/9865ab9319d803626e5a46295c0d02e494ac6766))
+* **deps:** update rust crate log to v0.4.27 ([4035ebc](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/4035ebc0f037b58b4ad574a830f1e5b55fdbc4fb))
+* **deps:** update rust crate tokio to v1.45.1 ([f54c5ad](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/f54c5adabf5f2f37fe7a1b1f343d6b87d9fe0738))
+
 ## [0.3.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.2.0...v0.3.0) (2025-03-17)
 
 
