@@ -227,15 +227,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
                                 continue;
                             }
                         };
-                        if let Some(ref regex) = include_regex {
-                            if !regex.is_match(&topic) {
-                                continue;
-                            }
+                        if let Some(ref regex) = include_regex
+                            && !regex.is_match(&topic)
+                        {
+                            continue;
                         }
-                        if let Some(ref regex) = exclude_regex {
-                            if regex.is_match(&topic) {
-                                continue;
-                            }
+                        if let Some(ref regex) = exclude_regex
+                            && regex.is_match(&topic)
+                        {
+                            continue;
                         }
                         let formatted_output = format_mqtt_log_entry(&topic, &payload);
                         println!("{}", formatted_output);
