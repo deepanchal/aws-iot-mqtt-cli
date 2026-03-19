@@ -149,7 +149,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         port: Some(port),
         clean_session: Some(true),
         keep_alive: None,
-        max_packet_size: Some(MQTTMaxPacketSize::new(24 * 1024, 24 * 1024)),
+        max_packet_size: Some(MQTTMaxPacketSize::new(256 * 1024, 256 * 1024)),
         request_channel_capacity: None,
         pending_throttle: None,
         inflight: None,
