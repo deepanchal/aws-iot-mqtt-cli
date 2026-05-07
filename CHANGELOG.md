@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.1](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.4.0...v0.4.1) (2026-05-07)
+
+
+### Bug Fixes
+
+* **main:** improve if cases for regex filter matching ([7cc70c1](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/7cc70c19835c14fc57b67ad85b22fca8f9216c1c))
+* **main:** increase MQTT max packet size to 256KB to prevent PayloadSizeLimitExceeded errors ([3edbbaa](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/3edbbaa96345f2d7370895fe3b01ede6a597b9cd))
+
 ## [0.4.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.3.0...v0.4.0) (2025-06-19)
 
 
