@@ -110,6 +110,7 @@ dependencies = [
  "log",
  "regex",
  "rumqttc",
+ "rustls",
  "serde",
  "serde_json",
  "term_size",
