@@ -84,6 +84,10 @@ struct Args {
     )]
     device_private_key_path: String,
 
+    /// Max MQTT packet size in bytes (incoming and outgoing). Defaults to usize::MAX so the AWS IoT broker limit (128KB payload) applies.
+    #[arg(long, env = "AWS_IOT_MAX_PACKET_SIZE", default_value_t = usize::MAX)]
+    max_packet_size: usize,
+
     /// Enable verbose logging
     #[arg(short, long)]
     verbose: bool,
@@ -145,11 +149,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let root_ca_path = args.root_ca_path;
     let device_cert_path = args.device_cert_path;
     let device_private_key_path = args.device_private_key_path;
+    let max_packet_size = args.max_packet_size;
     let mqtt_option_overrides = MQTTOptionsOverrides {
         port: Some(port),
         clean_session: Some(true),
         keep_alive: None,
-        max_packet_size: Some(MQTTMaxPacketSize::new(usize::MAX, usize::MAX)),
+        max_packet_size: Some(MQTTMaxPacketSize::new(max_packet_size, max_packet_size)),
         request_channel_capacity: None,
         pending_throttle: None,
         inflight: None,
