@@ -11,7 +11,7 @@ repository = "https://github.com/deepanchal/aws-iot-mqtt-cli"
 license = "MIT"
 
 [dependencies]
-aws-iot-device-sdk-rust = "0.6.0"
+aws-iot-device-sdk-rust = "0.8.0"
 chrono = "0.4.40"
 clap = { version = "4.5.32", features = ["derive", "env"] }
 colored = "3.0.0"
