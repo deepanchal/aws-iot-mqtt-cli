@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.4.2...v0.5.0) (2026-05-13)
+
+
+### Features
+
+* **main:** add --max-packet-size CLI option to configure MQTT max packet size ([16023e6](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/16023e6556945330fb1982a0718bc02eb4b28da6)), closes [#35](https://github.com/deepanchal/aws-iot-mqtt-cli/issues/35)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate aws-iot-device-sdk-rust to 0.8.0 ([ec7e762](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/ec7e7623f9b41546de706d35e80821c9a2d4921c))
+* **deps:** update rust crate rumqttc to 0.25.0 ([cad068b](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/cad068bc1aef8bfc10edd24ce7205739800e8e6b))
+* install rustls aws-lc-rs CryptoProvider at startup ([4cc6bfc](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/4cc6bfc39648c4f68b086441d1a60a306281ca9a))
+
 ## [0.4.2](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.4.1...v0.4.2) (2026-05-13)
 
 
