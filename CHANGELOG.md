@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.2](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.4.1...v0.4.2) (2026-05-13)
+
+
+### Bug Fixes
+
+* **main:** set MQTT max packet size to usize::MAX to defer to AWS IoT broker limit ([06d5efb](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/06d5efbe489a79dd32ddf10c01b4c64ef9e0fbf9))
+
+
+### Continuous Integration
+
+* **deploy:** use CARGO_REGISTRY_TOKEN env var for cargo publish ([bc4b7fd](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/bc4b7fd74106b8eb1eb168fb3a21f95c78619b4a))
+
 ## [0.4.1](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.4.0...v0.4.1) (2026-05-07)
 
 
