@@ -1,6 +1,6 @@
 mod format;
 
-use crate::format::format_mqtt_log_entry;
+use crate::format::{DividerStyle, format_mqtt_log_entry};
 use aws_iot_device_sdk_rust::settings::{MQTTMaxPacketSize, MQTTOptionsOverrides};
 use aws_iot_device_sdk_rust::{
     AWSIoTAsyncClient, AWSIoTSettings, Packet, QoS, async_event_loop_listener,
@@ -113,6 +113,10 @@ enum CliCommand {
         /// Hide the timestamp in message headers
         #[arg(long)]
         no_timestamp: bool,
+
+        /// Divider style around each message
+        #[arg(long, value_enum, default_value_t = DividerStyle::Full)]
+        divider: DividerStyle,
     },
 
     /// Publish messages to topics
@@ -200,6 +204,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             include,
             exclude,
             no_timestamp,
+            divider,
         }) => {
             let topic_list: Vec<&str> = topics.split(',').collect();
             if let Some(regex_string) = include.clone() {
@@ -252,7 +257,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             continue;
                         }
                         let formatted_output =
-                            format_mqtt_log_entry(&topic, &payload, !no_timestamp);
+                            format_mqtt_log_entry(&topic, &payload, !no_timestamp, divider);
                         println!("{}", formatted_output);
                     }
                 }
