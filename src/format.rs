@@ -1,29 +1,45 @@
+use clap::ValueEnum;
 use colored::*;
 use json_pretty_compact::PrettyCompactFormatter;
 use serde::ser::Serialize;
 use serde_json::{Serializer, Value};
 use std::hash::{Hash, Hasher};
 
-pub fn format_mqtt_log_entry(topic: &str, payload: &str, show_timestamp: bool) -> String {
+#[derive(ValueEnum, Clone, Copy, Debug)]
+pub enum DividerStyle {
+    Full,
+    Compact,
+}
+
+pub fn format_mqtt_log_entry(
+    topic: &str,
+    payload: &str,
+    show_timestamp: bool,
+    divider_style: DividerStyle,
+) -> String {
     let color = derive_color_from_string(topic);
     let timestamp = if show_timestamp {
         chrono::Utc::now().to_rfc3339()
     } else {
         String::new()
     };
-    let pretty_output = format_payload(payload);
+    let pretty_output = format_payload(payload).bright_white();
 
-    let (header_text, divider) = format_header_and_divider(topic, &timestamp, color);
-
-    let log_section = print_log_section(&divider, &header_text);
-    let formatted_output = format!(
-        "{}\n{}\n{}\n",
-        log_section,
-        pretty_output.bright_white(),
-        log_section,
-    );
-
-    formatted_output
+    match divider_style {
+        DividerStyle::Full => {
+            let (header_text, divider) = format_header_and_divider(topic, &timestamp, color);
+            let log_section = print_log_section(&divider, &header_text);
+            format!("{}\n{}\n{}\n", log_section, pretty_output, log_section)
+        }
+        DividerStyle::Compact => {
+            let header = format!("==> {} <== {}", topic, timestamp);
+            format!(
+                "{}\n{}\n",
+                header.trim_end().color(color).bold(),
+                pretty_output
+            )
+        }
+    }
 }
 
 fn format_payload(payload: &str) -> String {
