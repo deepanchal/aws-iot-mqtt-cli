@@ -109,6 +109,10 @@ enum CliCommand {
         /// Regex to exclude topics
         #[arg(short, long)]
         exclude: Option<String>,
+
+        /// Hide the timestamp in message headers
+        #[arg(long)]
+        no_timestamp: bool,
     },
 
     /// Publish messages to topics
@@ -195,6 +199,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             topics,
             include,
             exclude,
+            no_timestamp,
         }) => {
             let topic_list: Vec<&str> = topics.split(',').collect();
             if let Some(regex_string) = include.clone() {
@@ -246,7 +251,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         {
                             continue;
                         }
-                        let formatted_output = format_mqtt_log_entry(&topic, &payload);
+                        let formatted_output =
+                            format_mqtt_log_entry(&topic, &payload, !no_timestamp);
                         println!("{}", formatted_output);
                     }
                 }
