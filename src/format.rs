@@ -4,9 +4,13 @@ use serde::ser::Serialize;
 use serde_json::{Serializer, Value};
 use std::hash::{Hash, Hasher};
 
-pub fn format_mqtt_log_entry(topic: &str, payload: &str) -> String {
+pub fn format_mqtt_log_entry(topic: &str, payload: &str, show_timestamp: bool) -> String {
     let color = derive_color_from_string(topic);
-    let timestamp = chrono::Utc::now().to_rfc3339();
+    let timestamp = if show_timestamp {
+        chrono::Utc::now().to_rfc3339()
+    } else {
+        String::new()
+    };
     let pretty_output = format_payload(payload);
 
     let (header_text, divider) = format_header_and_divider(topic, &timestamp, color);
