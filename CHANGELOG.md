@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.5.0...v0.6.0) (2026-09-29)
+
+
+### Features
+
+* add --divider option with compact style to sub command ([b124891](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/b1248910f0ffb31491bf3ac27fe861eab0a35df4))
+* add --no-timestamp flag to sub command ([9ec1f3b](https://github.com/deepanchal/aws-iot-mqtt-cli/commit/9ec1f3bb82976f8fbc877559f846d964e456e464))
+
 ## [0.5.0](https://github.com/deepanchal/aws-iot-mqtt-cli/compare/v0.4.2...v0.5.0) (2026-05-13)
 
 
